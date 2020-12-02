@@ -1,28 +1,16 @@
 package com.actualadam.aoc.aoc2020.worksheet
 
 import com.actualadam.aoc.aoc2020.InputReader
+import com.actualadam.aoc.aoc2020.days.day02.Day02
 
-val lines = InputReader.lines(1).map { it.toInt() }
+val lines = InputReader.lines(2)
 
-fun part2TheHardWay(entries: List<Int>): Set<Int> {
-    entries.forEach first@{ first ->
-        entries.forEach second@{ second ->
-            if (second == first) {
-                return@first
-            }
-            entries.forEach { third ->
-                if (third == second || third == first) {
-                    return@second
-                }
-                val subset = setOf(first, second, third)
-                if (subset.sum() == 2020) {
-                    return subset
-                }
-            }
-        }
-    }
-    throw IllegalStateException("couldn't find a match")
-}
+val policyPasswords = lines.map { Day02.Part1.PolicyPassword.parse(it) }
+policyPasswords
 
-part2TheHardWay(lines)
+val abacab = "abacab"
+abacab.count { it == 'a'}
 
+val policyPassword = policyPasswords[1]
+policyPassword
+policyPassword.isValid()
