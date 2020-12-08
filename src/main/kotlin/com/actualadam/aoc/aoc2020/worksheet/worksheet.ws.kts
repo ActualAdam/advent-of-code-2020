@@ -1,24 +1,46 @@
 package com.actualadam.aoc.aoc2020.worksheet
 
 import com.actualadam.aoc.aoc2020.InputReader
-import com.actualadam.aoc.aoc2020.days.day05.calculateSeatAssignments
-import com.actualadam.aoc.aoc2020.days.day05.calculateSeatId
 
-val lines = InputReader.lines(5)
+val lines = InputReader.lines(7)
 
 lines
+lines[0]
 
-val seatIds = calculateSeatAssignments(lines)
-    .map{ calculateSeatId(it) }
+val bagModifierPattern = "(\\w+ \\w+) bags".toRegex()
 
-seatIds.maxOrNull()
-seatIds.minOrNull()
-seatIds.count()
+val rules: List<List<String>> = lines.map { line ->
+    bagModifierPattern.findAll(line).toList()
+        .map { it.groupValues[1] }
+}
 
-894 - 888
 
-seatIds.sorted().filterIndexed { i, v ->
-    i + seatIds.minOrNull()!! != v
-}.first() - 1
+data class TreeNode(
+    val value: String,
+    val parent: String,
+)
 
-seatIds.sorted()
+tailrec fun buildTree(rules: List<List<String>>, acc: List<TreeNode> = listOf()): List<TreeNode> {
+    if (rules.isEmpty()) {
+        return acc
+    }
+    val rule = rules.first()
+    val parentValue = rule.first()
+    return buildTree(rules.drop(1), acc + rule.drop(1).map { TreeNode(it, parentValue) })
+}
+
+val tree = buildTree(rules)
+
+tree.count()
+
+
+tailrec fun getDepth(value: String, tree: List<TreeNode>, acc: Int = 0): Int {
+    val parent = tree.find { it.value == value } ?: return acc
+    println(parent)
+    return getDepth(parent.value, tree, acc + 1)
+}
+
+getDepth("bright gold", tree)
+
+// tree.find { it.value == "bright gold" }
+
