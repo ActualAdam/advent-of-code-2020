@@ -35,6 +35,9 @@ tailrec fun processInstructions(
     instructions: List<Instruction>,
     state: ProgramState = ProgramState()
 ): ProgramState {
+    if (state.instructionIndex == instructions.size) {
+        return state
+    }
     val instruction = instructions[state.instructionIndex]
     val visits = state.visitedInstructions + state.instructionIndex
 
@@ -42,9 +45,34 @@ tailrec fun processInstructions(
     val nextAcc = getNextAcc(instruction, state)
     val nextState = ProgramState(visits, nextIndex, nextAcc)
     return if (visits.contains(nextIndex)) {
-        state
+        state.copy(terminatedNormally = false)
     } else {
         processInstructions(instructions, nextState)
+    }
+}
+
+fun repairProgram(instructions: List<Instruction>): ProgramState {
+    for (index in instructions.indices) {
+        val repairAttempt = instructions.mapIndexed { i, v ->
+            if (index == i) {
+                repairInstruction(v)
+            } else {
+                v
+            }
+        }
+        val state = processInstructions(repairAttempt)
+        if (state.terminatedNormally) {
+            return state
+        }
+    }
+    throw IllegalStateException("Didn't find a repair that causes the program to terminate normally")
+}
+
+fun repairInstruction(instruction: Instruction): Instruction {
+    return when (instruction.operation) {
+        Instruction.Operation.nop -> instruction.copy(operation = Instruction.Operation.jmp)
+        Instruction.Operation.jmp -> instruction.copy(operation = Instruction.Operation.nop)
+        else -> instruction
     }
 }
 
@@ -69,7 +97,8 @@ fun day08part1(puzzleInput: List<String>): Int {
 }
 
 fun day08part2(puzzleInput: List<String>): Int {
-    return -1
+    val instructions = puzzleInput.map { Instruction.parse(it) }
+    return repairProgram(instructions).acc
 }
 
 fun main() {
