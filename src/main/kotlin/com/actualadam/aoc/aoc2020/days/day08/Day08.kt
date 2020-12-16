@@ -1,22 +1,6 @@
-package com.actualadam.aoc.aoc2020.worksheet
+package com.actualadam.aoc.aoc2020.days.day08
 
 import com.actualadam.aoc.aoc2020.InputReader
-
-val lines = InputReader.lines(7)
-
-val example = """
-    nop +0
-    acc +1
-    jmp +4
-    acc +3
-    jmp -3
-    acc -99
-    acc +1
-    jmp -4
-    acc +6
-""".trimIndent().split("\n")
-
-example
 
 data class Instruction(
     val operation: Operation,
@@ -40,15 +24,17 @@ data class Instruction(
     }
 }
 
-example.map { Instruction.parse(it) }
-
 data class ProgramState(
     val visitedInstructions: List<Int> = listOf(),
     val instructionIndex: Int = 0,
-    val acc: Int = 0
+    val acc: Int = 0,
+    val terminatedNormally: Boolean = true,
 )
 
-tailrec fun processInstructions(instructions: List<Instruction>, state: ProgramState = ProgramState()): ProgramState {
+tailrec fun processInstructions(
+    instructions: List<Instruction>,
+    state: ProgramState = ProgramState()
+): ProgramState {
     val instruction = instructions[state.instructionIndex]
     val visits = state.visitedInstructions + state.instructionIndex
 
@@ -76,4 +62,18 @@ fun getNextInstructionIndex(instruction: Instruction, state: ProgramState): Int 
     }
 }
 
-processInstructions(example.map { Instruction.parse(it)} )
+fun day08part1(puzzleInput: List<String>): Int {
+    val instructions = puzzleInput.map { Instruction.parse(it) }
+    val stoppedState = processInstructions(instructions)
+    return stoppedState.acc
+}
+
+fun day08part2(puzzleInput: List<String>): Int {
+    return -1
+}
+
+fun main() {
+    val puzzleInput = InputReader.lines(8)
+    println("Day 08, Part 1: ${day08part1(puzzleInput)}")
+    println("Day 08, Part 2: ${day08part2(puzzleInput)}")
+}
