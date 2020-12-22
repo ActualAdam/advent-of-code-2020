@@ -13,3 +13,5 @@ object InputReader {
 
     private fun formatDay(day: Int) = day.toString().padStart(2, '0')
 }
+
+
