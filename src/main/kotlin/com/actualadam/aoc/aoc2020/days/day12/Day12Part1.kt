@@ -27,56 +27,6 @@ private data class Instruction(
     }
 }
 
-
-private data class Position(
-    val orientation: Orientation = Orientation.East,
-    val northSouth: Int = 0,
-    val eastWest: Int = 0
-) {
-    enum class Orientation(val degrees: Int) {
-        North(0),
-        East(90),
-        South(180),
-        West(270);
-
-        companion object {
-            private val orientationsByDegrees = values().associateBy { it.degrees }
-            fun fromDegrees(degrees: Int): Orientation =
-                orientationsByDegrees[degrees] ?: throw IllegalArgumentException("no specific orientation for $degrees")
-
-            fun explement(degrees: Int): Int {
-                require(degrees <= 360)
-                return if (degrees == 0) 0 else 360 - degrees
-            }
-        }
-
-        enum class RotationDirection {
-            Left,
-            Right;
-        }
-
-        /*
-         * Returns a new Orientation with the given rotation applied. You can rotate left or right any number of degrees.
-         */
-        fun rotate(direction: RotationDirection, degrees: Int): Orientation {
-            require(degrees >= 0)
-            return when (direction) {
-                RotationDirection.Left -> {
-                    val degreesValue = (this.degrees - degrees) % 360
-                    val leftAdjustedOrientation = if (degreesValue >= 0) {
-                        degreesValue
-                    } else {
-                        explement(degreesValue.absoluteValue)
-                    }
-                    Orientation.fromDegrees(leftAdjustedOrientation)
-                }
-                RotationDirection.Right -> Orientation.fromDegrees((this.degrees + degrees) % 360)
-            }
-        }
-    }
-}
-
-
 private val orientationToAction = mapOf(
     Position.Orientation.North to Instruction.Action.North,
     Position.Orientation.South to Instruction.Action.South,
@@ -86,10 +36,10 @@ private val orientationToAction = mapOf(
 
 private fun move(pos: Position, ins: Instruction): Position {
     return when (ins.action) {
-        Instruction.Action.North -> pos.copy(northSouth = pos.northSouth + ins.value)
-        Instruction.Action.South -> pos.copy(northSouth = pos.northSouth - ins.value)
-        Instruction.Action.East -> pos.copy(eastWest = pos.eastWest + ins.value)
-        Instruction.Action.West -> pos.copy(eastWest = pos.eastWest - ins.value)
+        Instruction.Action.North -> pos.copy(location = pos.location.copy(northSouth = pos.location.northSouth + ins.value))
+        Instruction.Action.South -> pos.copy(location = pos.location.copy(northSouth = pos.location.northSouth - ins.value))
+        Instruction.Action.East -> pos.copy(location = pos.location.copy(eastWest = pos.location.eastWest + ins.value))
+        Instruction.Action.West -> pos.copy(location = pos.location.copy(eastWest = pos.location.eastWest - ins.value))
         Instruction.Action.Forward -> move(
             pos,
             Instruction(orientationToAction[pos.orientation]!!, ins.value)
@@ -122,11 +72,11 @@ private tailrec fun runCourse(position: Position = Position(), instructions: Lis
 fun day12part1(puzzleInput: List<String>): Int {
     val instructions = puzzleInput.map{ Instruction.parse(it) }
     val finalPosition = runCourse(instructions = instructions)
-    return finalPosition.eastWest.absoluteValue + finalPosition.northSouth.absoluteValue
+    return finalPosition.location.eastWest.absoluteValue + finalPosition.location.northSouth.absoluteValue
 }
 
 
 fun main() {
     val puzzleInput = InputReader.lines(12)
-    println("Day 12, Part 1: ${day12part1(puzzleInput)}")
+    println("Day 12, Part 1, expect 1601: ${day12part1(puzzleInput)}")
 }
