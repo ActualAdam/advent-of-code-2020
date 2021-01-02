@@ -1,12 +1,9 @@
-package com.actualadam.aoc.aoc2020.worksheet
+package com.actualadam.aoc.aoc2020.days.day12
 
 import com.actualadam.aoc.aoc2020.InputReader
 import kotlin.math.absoluteValue
 
-val puzzleInput = InputReader.lines(12, "input.txt")
-puzzleInput
-
-data class Instruction(
+private data class Instruction(
     val action: Action,
     val value: Int
 ) {
@@ -31,7 +28,7 @@ data class Instruction(
 }
 
 
-data class Position(
+private data class Position(
     val orientation: Orientation = Orientation.East,
     val northSouth: Int = 0,
     val eastWest: Int = 0
@@ -80,14 +77,14 @@ data class Position(
 }
 
 
-val orientationToAction = mapOf(
+private val orientationToAction = mapOf(
     Position.Orientation.North to Instruction.Action.North,
     Position.Orientation.South to Instruction.Action.South,
     Position.Orientation.West to Instruction.Action.West,
     Position.Orientation.East to Instruction.Action.East,
 )
 
-fun move(pos: Position, ins: Instruction): Position {
+private fun move(pos: Position, ins: Instruction): Position {
     return when (ins.action) {
         Instruction.Action.North -> pos.copy(northSouth = pos.northSouth + ins.value)
         Instruction.Action.South -> pos.copy(northSouth = pos.northSouth - ins.value)
@@ -112,9 +109,8 @@ fun move(pos: Position, ins: Instruction): Position {
     }
 }
 
-val instructions = puzzleInput.map { Instruction.parse(it) }
 
-tailrec fun runCourse(position: Position = Position(), instructions: List<Instruction>): Position {
+private tailrec fun runCourse(position: Position = Position(), instructions: List<Instruction>): Position {
     return if (instructions.isEmpty()) {
         position
     } else {
@@ -122,8 +118,15 @@ tailrec fun runCourse(position: Position = Position(), instructions: List<Instru
     }
 }
 
-val finalPosition = runCourse(instructions = instructions)
-finalPosition
-finalPosition.eastWest.absoluteValue + finalPosition.northSouth.absoluteValue
 
-Position.Orientation.East.rotate(Position.Orientation.RotationDirection.Left, 0).degrees
+fun day12part1(puzzleInput: List<String>): Int {
+    val instructions = puzzleInput.map{ Instruction.parse(it) }
+    val finalPosition = runCourse(instructions = instructions)
+    return finalPosition.eastWest.absoluteValue + finalPosition.northSouth.absoluteValue
+}
+
+
+fun main() {
+    val puzzleInput = InputReader.lines(12)
+    println("Day 12, Part 1: ${day12part1(puzzleInput)}")
+}
